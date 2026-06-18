@@ -1,0 +1,32 @@
+{
+  "name": "agents",
+  "version": "1.0.0",
+  "description": "TypeScript of the multi-agent framework.",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "example:basic": "tsx examples/basic.ts"
+  },
+  "keywords": [
+    "agents",
+    "multi-agent",
+    "openai",
+    "typescript",
+    "llm"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "openai": "^6.44.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.3",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
