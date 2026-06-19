@@ -2,7 +2,7 @@ import "dotenv/config";
 
 import OpenAI from "openai";
 import {
-  AgentsLLMOptions,
+  LLMOptions,
   ChatMessage,
   InvokeOptions,
   SupportedProvider,
@@ -17,7 +17,7 @@ import { AgentsError } from "./exceptions";
  * OpenAI-compatible API and you provide the right `apiKey`, `baseUrl`, and
  * `model`.
  */
-export class AgentsLLM {
+export class LLM {
   readonly model: string;
   readonly apiKey: string;
   readonly baseUrl: string;
@@ -39,7 +39,7 @@ export class AgentsLLM {
    *
    * @throws {AgentsError} When no usable API key or base URL can be resolved.
    */
-  constructor(options: AgentsLLMOptions = {}) {
+  constructor(options: LLMOptions = {}) {
     this.temperature = options.temperature ?? 0.7;
     this.maxTokens = options.maxTokens;
     this.timeoutSeconds =

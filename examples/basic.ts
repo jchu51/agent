@@ -1,10 +1,10 @@
 import { SimpleAgent } from "../src/agents/simple-agent";
-import { AgentsLLM } from "../src/core/llm";
+import { LLM } from "../src/core/llm";
 import { CalculatorTool } from "../src/tools/calculator";
 import { ToolRegistry } from "../src/tools/registry";
 
 const main = async () => {
-  const llm = new AgentsLLM();
+  const llm = new LLM();
 
   const registry = new ToolRegistry();
   registry.registerTool(new CalculatorTool());

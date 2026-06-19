@@ -1,5 +1,5 @@
 import { Config } from "./config";
-import { AgentsLLM } from "./llm";
+import { LLM } from "./llm";
 import { Message } from "./message";
 import { AgentOptions } from "./types";
 
@@ -12,7 +12,7 @@ import { AgentOptions } from "./types";
  */
 export abstract class Agent {
   readonly name: string;
-  readonly llm: AgentsLLM;
+  readonly llm: LLM;
   readonly systemPrompt?: string;
   readonly config: Config;
   protected history: Message[] = [];

@@ -5,7 +5,7 @@ OpenAI-compatible chat APIs.
 
 The goal is to make the moving parts visible:
 
-- `AgentsLLM` wraps the OpenAI SDK.
+- `LLM` wraps the OpenAI SDK.
 - `Agent` owns shared agent state such as name, prompt, config, and history.
 - `SimpleAgent` turns a user input into chat messages and calls the LLM.
 - `Message` stores local conversation history before it is converted to API
@@ -64,7 +64,7 @@ LLM_TIMEOUT=60
 
 ## Provider Detection
 
-If you do not pass a provider, `AgentsLLM` tries to detect one from environment
+If you do not pass a provider, `LLM` tries to detect one from environment
 variables, API key hints, or the base URL.
 
 Detection order:
@@ -84,11 +84,11 @@ try to use the provided OpenAI-compatible `LLM_API_KEY` and `LLM_BASE_URL`.
 
 ```ts
 import { SimpleAgent } from "../src/agents/simple-agent";
-import { AgentsLLM } from "../src/core/llm";
+import { LLM } from "../src/core/llm";
 import { CalculatorTool } from "../src/tools/calculator";
 import { ToolRegistry } from "../src/tools/registry";
 
-const llm = new AgentsLLM();
+const llm = new LLM();
 
 const registry = new ToolRegistry();
 registry.registerTool(new CalculatorTool());

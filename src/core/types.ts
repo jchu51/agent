@@ -1,5 +1,5 @@
 import type { Config } from "./config";
-import type { AgentsLLM } from "./llm";
+import type { LLM } from "./llm";
 
 /**
  * Provider names understood by the learning LLM wrapper.
@@ -10,12 +10,12 @@ import type { AgentsLLM } from "./llm";
 export type SupportedProvider = "deepseek" | "ollama" | "local" | "custom";
 
 /**
- * Constructor options for `AgentsLLM`.
+ * Constructor options for `LLM`.
  *
  * All fields are optional so the wrapper can fall back to environment
  * variables and provider defaults while you experiment.
  */
-export type AgentsLLMOptions = {
+export type LLMOptions = {
   model?: string;
   apiKey?: string;
   baseUrl?: string;
@@ -41,7 +41,7 @@ export type InvokeOptions = {
  */
 export type AgentOptions = {
   name: string;
-  llm: AgentsLLM;
+  llm: LLM;
   systemPrompt?: string;
   config?: Config;
 };
