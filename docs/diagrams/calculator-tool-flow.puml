@@ -1,0 +1,28 @@
+@startuml calculator-tool-flow
+!theme plain
+title CalculatorTool setup and execution
+
+skinparam backgroundColor #FEFEFE
+skinparam shadowing false
+skinparam sequenceArrowThickness 1.5
+skinparam defaultFontSize 12
+skinparam noteFontSize 11
+
+participant "App code" as Code
+participant "ToolRegistry" as Registry
+participant "SimpleAgent" as Agent
+participant "LLM" as Model
+participant "CalculatorTool" as Calc
+
+Code -> Registry : registerTool(new CalculatorTool())
+Code -> Agent : create SimpleAgent with registry
+Agent -> Registry : getToolsDescription()
+Registry --> Agent : calculator docs
+Agent -> Model : prompt includes calculator docs
+Model --> Agent : TOOL_CALL calculator input
+Agent -> Agent : parse tool name and input
+Agent -> Calc : run with expression input
+Calc --> Agent : result
+Agent -> Model : tool result
+Model --> Agent : final answer
+@enduml

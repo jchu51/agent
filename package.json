@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "example:basic": "tsx examples/basic.ts"
+    "example:sample": "tsx examples/sample-agent.ts",
+    "example:react": "tsx examples/react-agent.ts"
   },
   "keywords": [
     "agents",

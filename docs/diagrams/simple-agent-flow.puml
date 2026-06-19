@@ -1,0 +1,36 @@
+@startuml simple-agent-flow
+!theme plain
+title SimpleAgent custom tool flow
+
+skinparam backgroundColor #FEFEFE
+skinparam shadowing false
+skinparam sequenceArrowThickness 1.5
+skinparam defaultFontSize 12
+skinparam noteFontSize 11
+
+actor User
+participant "SimpleAgent" as Agent
+participant "ToolRegistry" as Registry
+participant "LLM" as Model
+participant "CalculatorTool" as Tool
+
+User -> Agent : run(question)
+Agent -> Registry : getToolsDescription()
+Registry --> Agent : calculator docs
+Agent -> Model : messages with prompt and tool docs
+Model --> Agent : answer or TOOL_CALL text
+
+alt model asks for a tool
+  Agent -> Agent : parseToolCalls()
+  Agent -> Agent : parseToolParameters()
+  Agent -> Tool : run with input
+  Tool --> Agent : tool result
+  Agent -> Model : tool result as user message
+  Model --> Agent : final answer
+else model answers directly
+  Model --> Agent : final answer
+end
+
+Agent -> Agent : store user and assistant Message
+Agent --> User : final answer
+@enduml

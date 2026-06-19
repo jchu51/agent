@@ -1,0 +1,41 @@
+@startuml react-agent-flow
+!theme plain
+title ReActAgent Thought Action Observation loop
+
+skinparam backgroundColor #FEFEFE
+skinparam shadowing false
+skinparam sequenceArrowThickness 1.5
+skinparam defaultFontSize 12
+skinparam noteFontSize 11
+
+actor User
+participant "ReActAgent" as Agent
+participant "currentHistory" as Scratchpad
+participant "ToolRegistry" as Registry
+participant "LLM" as Model
+participant "CalculatorTool" as Tool
+
+User -> Agent : run(question)
+Agent -> Scratchpad : clear current run
+
+loop until Finish or maxSteps
+  Agent -> Registry : getToolsDescription()
+  Registry --> Agent : available tools
+  Agent -> Scratchpad : read history
+  Agent -> Model : prompt with tools, question, history
+  Model --> Agent : Thought and Action
+  Agent -> Agent : parseOutput()
+
+  alt Action is tool call
+    Agent -> Agent : parseAction()
+    Agent -> Tool : run with input
+    Tool --> Agent : observation
+    Agent -> Scratchpad : append Thought, Action, Observation
+  else Action is Finish
+    Agent -> Agent : extract final answer
+  end
+end
+
+Agent -> Agent : store final user and assistant Message
+Agent --> User : final answer
+@enduml

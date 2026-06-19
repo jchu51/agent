@@ -3,11 +3,17 @@
 A small TypeScript learning project for building an agent wrapper around
 OpenAI-compatible chat APIs.
 
+This project is a learning rebuild based on and referencing
+[datawhalechina/hello-agents](https://github.com/datawhalechina/hello-agents).
+The code here is written to study the ideas step by step and rebuild a smaller
+TypeScript version for practice.
+
 The goal is to make the moving parts visible:
 
 - `LLM` wraps the OpenAI SDK.
 - `Agent` owns shared agent state such as name, prompt, config, and history.
 - `SimpleAgent` turns a user input into chat messages and calls the LLM.
+- `ReActAgent` runs a Thought/Action/Observation loop for tool use.
 - `Message` stores local conversation history before it is converted to API
   messages.
 - `Tool`, `ToolRegistry`, and `CalculatorTool` demonstrate a custom
@@ -80,7 +86,7 @@ Detection order:
 `custom` means the package does not know the provider name, but it will still
 try to use the provided OpenAI-compatible `LLM_API_KEY` and `LLM_BASE_URL`.
 
-## Basic Example
+## Simple Agent Example
 
 ```ts
 import { SimpleAgent } from "../src/agents/simple-agent";
@@ -107,8 +113,35 @@ console.log(response);
 Run the included example:
 
 ```sh
-npm run example:basic
+npm run example:sample
 ```
+
+See [Simple Agent Flow](docs/simple-agent-flow.md) for a diagram of how the
+prompt, optional custom tool loop, and final message history fit together.
+
+## ReAct Agent Example
+
+`ReActAgent` uses a stricter reasoning loop. The model must return one
+`Thought:` and one `Action:` each step. The action is either a tool call:
+
+```txt
+calculator[5 + 10]
+```
+
+or a final answer:
+
+```txt
+Finish[The answer is 15]
+```
+
+Run the included ReAct example:
+
+```sh
+npm run example:react
+```
+
+See [ReAct Agent Flow](docs/react-agent-flow.md) for a diagram of how
+`currentHistory` stores the Thought/Action/Observation scratchpad during a run.
 
 ## Custom Tool Calling
 
@@ -182,10 +215,12 @@ src/core/config.ts       Shared runtime config defaults
 src/core/types.ts        Shared TypeScript types
 src/core/tool.ts         Base class for local executable tools
 src/agents/simple-agent.ts
+src/agents/react-agent.ts
 src/tools/registry.ts    In-memory tool registry
 src/tools/calculator.ts  Arithmetic calculator tool
 src/tools/function-tool.ts
-examples/basic.ts
+examples/sample-agent.ts
+examples/react-agent.ts
 ```
 
 ## Learning Notes
@@ -197,6 +232,11 @@ used to configure construction," not "every field is optional."
 The `systemPrompt` becomes a Chat Completions `system` message. Conversation
 history is stored as `Message` objects and converted into `{ role, content }`
 objects before the LLM call.
+
+`ReActAgent.currentHistory` is different from the base `history`.
+`currentHistory` is the active Thought/Action/Observation scratchpad that gets
+inserted into the next ReAct prompt. The base `history` stores completed
+conversation messages after the run finishes.
 
 `streamRun` currently streams directly from the LLM and does not execute custom
 tool calls mid-stream.

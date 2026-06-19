@@ -19,6 +19,7 @@ export type SimpleAgentOptions = {
 export class SimpleAgent extends Agent {
   private toolRegistry?: ToolRegistry;
   private enableToolCalling: boolean;
+
   /**
    * Creates a simple agent.
    *
