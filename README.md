@@ -10,6 +10,8 @@ The goal is to make the moving parts visible:
 - `SimpleAgent` turns a user input into chat messages and calls the LLM.
 - `Message` stores local conversation history before it is converted to API
   messages.
+- `Tool`, `ToolRegistry`, and `CalculatorTool` demonstrate a custom
+  text-based tool loop.
 
 ## Why The OpenAI SDK?
 
@@ -83,16 +85,22 @@ try to use the provided OpenAI-compatible `LLM_API_KEY` and `LLM_BASE_URL`.
 ```ts
 import { SimpleAgent } from "../src/agents/simple-agent";
 import { AgentsLLM } from "../src/core/llm";
+import { CalculatorTool } from "../src/tools/calculator";
+import { ToolRegistry } from "../src/tools/registry";
 
 const llm = new AgentsLLM();
+
+const registry = new ToolRegistry();
+registry.registerTool(new CalculatorTool());
 
 const agent = new SimpleAgent({
   name: "TS Assistant",
   llm,
   systemPrompt: "You are a concise and helpful TypeScript agent.",
+  toolRegistry: registry,
 });
 
-const response = await agent.run("What is 12 * 8?");
+const response = await agent.run("What is 12 * 8 + 0.00001 * 10000?");
 console.log(response);
 ```
 
@@ -101,6 +109,62 @@ Run the included example:
 ```sh
 npm run example:basic
 ```
+
+## Custom Tool Calling
+
+The current `SimpleAgent` uses a custom text protocol rather than native OpenAI
+tool calling.
+
+When tools are enabled, the agent adds tool instructions to the system prompt:
+
+```txt
+Available tools:
+- calculator: Execute math calculations...
+  Parameters: input (string, required): Math expression to evaluate
+
+Tool call format:
+[TOOL_CALL:{tool_name}:{parameters}]
+```
+
+The model is expected to respond with text like:
+
+```txt
+[TOOL_CALL:calculator:input=12*8+0.00001*10000]
+```
+
+Then the agent:
+
+1. Parses the text tool call.
+2. Converts parameters based on the tool schema.
+3. Runs the matching local TypeScript tool.
+4. Sends the tool result back to the model as a normal `user` message.
+5. Asks the model to produce the final answer.
+
+This is intentionally simple and visible. The model only knows about tools
+because the tool descriptions are placed in the prompt.
+
+See [Calculator Tool Flow](docs/calculator-tool-flow.md) for a diagram of how
+the calculator tool is registered, prompted, called, executed, and returned to
+the model.
+
+## Native OpenAI Tool Calling
+
+`Tool.toOpenAISchema()` is included for learning and future experiments with
+native OpenAI tool calling.
+
+Native tool calling is different from the custom protocol:
+
+```ts
+client.chat.completions.create({
+  model,
+  messages,
+  tools: registry.getAllTools().map((tool) => tool.toOpenAISchema()),
+});
+```
+
+With native tool calling, the model returns structured `tool_calls`, and your
+app sends results back with `role: "tool"`. The current `SimpleAgent` does not
+use that native path yet.
 
 ## Build
 
@@ -116,7 +180,11 @@ src/core/agent.ts        Abstract base agent
 src/core/message.ts      In-memory message object
 src/core/config.ts       Shared runtime config defaults
 src/core/types.ts        Shared TypeScript types
+src/core/tool.ts         Base class for local executable tools
 src/agents/simple-agent.ts
+src/tools/registry.ts    In-memory tool registry
+src/tools/calculator.ts  Arithmetic calculator tool
+src/tools/function-tool.ts
 examples/basic.ts
 ```
 
@@ -130,6 +198,18 @@ The `systemPrompt` becomes a Chat Completions `system` message. Conversation
 history is stored as `Message` objects and converted into `{ role, content }`
 objects before the LLM call.
 
+`streamRun` currently streams directly from the LLM and does not execute custom
+tool calls mid-stream.
+
+Some tool helpers are not used by `SimpleAgent` yet, but are kept intentionally:
+
+- `Tool.toOpenAISchema()` shows how a local tool can become a native OpenAI
+  function schema.
+- `ToolRegistry.registerFunction()` is a shortcut for wrapping one-input
+  functions as tools.
+- `globalRegistry` is available for quick experiments, while examples use a
+  local registry to keep state explicit.
+
 `SimpleAgent` is intentionally small rather than feature-complete. It is a good
 place to experiment with prompt construction, history handling, streaming,
-tools, retries, and provider-specific model defaults.
+custom tools, native tools, retries, and provider-specific model defaults.

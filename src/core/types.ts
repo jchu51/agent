@@ -1,4 +1,5 @@
-import { AgentsLLM } from "./llm";
+import type { Config } from "./config";
+import type { AgentsLLM } from "./llm";
 
 /**
  * Provider names understood by the learning LLM wrapper.
@@ -42,7 +43,7 @@ export type AgentOptions = {
   name: string;
   llm: AgentsLLM;
   systemPrompt?: string;
-  config?: any;
+  config?: Config;
 };
 
 /**
@@ -74,4 +75,53 @@ export type ConfigOptions = {
   temperature?: number;
   timeoutSeconds?: number;
   verbose?: boolean;
+};
+
+export type ToolParameterType =
+  | "string"
+  | "number"
+  | "integer"
+  | "boolean"
+  | "array"
+  | "object";
+
+/**
+ * Parameter metadata for a tool.
+ *
+ * In the custom text-based tool flow, this metadata is rendered into the
+ * system prompt so the model knows what arguments to produce. It can also be
+ * converted into an OpenAI native tool schema with `Tool.toOpenAISchema()`.
+ */
+export type ToolParameter = {
+  name: string;
+  type: ToolParameterType;
+  description: string;
+  required?: boolean;
+  default?: unknown;
+};
+
+/**
+ * Minimal native OpenAI tool schema shape generated from a `Tool`.
+ *
+ * The current `SimpleAgent` uses custom text tool calls, but this type keeps
+ * the tool abstraction ready for native OpenAI tool calling experiments.
+ */
+export type OpenAIToolSchema = {
+  type: "function";
+  function: {
+    name: string;
+    description: string;
+    parameters: {
+      type: "object";
+      properties: Record<
+        string,
+        {
+          type: ToolParameterType;
+          description: string;
+          items?: { type: string };
+        }
+      >;
+      required?: string[];
+    };
+  };
 };

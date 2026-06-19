@@ -192,10 +192,37 @@ export class AgentsLLM {
         temperature: options.temperature ?? this.temperature,
         max_tokens: options.maxTokens ?? this.maxTokens,
       });
+
       return response.choices[0]?.message.content ?? "";
     } catch (error) {
       throw new AgentsError(
         `LLM call failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  async *streamInvoke(
+    messages: ChatMessage[],
+    options: InvokeOptions = {},
+  ): AsyncGenerator<string> {
+    try {
+      const response = await this.client.chat.completions.create({
+        model: this.model,
+        messages: messages,
+        temperature: options.temperature ?? this.temperature,
+        max_tokens: options.maxTokens ?? this.maxTokens,
+        stream: true,
+      });
+
+      for await (const chunk of response) {
+        const content = chunk.choices[0]?.delta.content ?? "";
+        if (content) {
+          yield content;
+        }
+      }
+    } catch (error) {
+      throw new AgentsError(
+        `Streaming LLM call failed: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
