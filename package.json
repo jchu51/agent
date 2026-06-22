@@ -7,7 +7,8 @@
     "build": "tsc -p tsconfig.json",
     "example:sample": "tsx examples/sample-agent.ts",
     "example:react": "tsx examples/react-agent.ts",
-    "example:reflection": "tsx examples/reflection-agent.ts"
+    "example:reflection": "tsx examples/reflection-agent.ts",
+    "example:plan": "tsx examples/plan-and-solve-agent.ts"
   },
   "keywords": [
     "agents",
