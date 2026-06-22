@@ -1,5 +1,5 @@
-import { PlanAndSolveAgent } from "../src/agents/plan-and-solve-agent/plan-and-solve-agent";
-import { LLM } from "../src/core/llm";
+import { PlanAndSolveAgent } from "../../src/agents/plan-and-solve-agent/plan-and-solve-agent";
+import { LLM } from "../../src/core/llm";
 
 async function main() {
   const llm = new LLM();

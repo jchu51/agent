@@ -13,6 +13,8 @@ The goal is to make the moving parts visible:
 - `LLM` wraps the OpenAI SDK.
 - `Agent` owns shared agent state such as name, prompt, config, and history.
 - `SimpleAgent` turns a user input into chat messages and calls the LLM.
+- `FunctionCallAgent` uses native OpenAI-compatible tool calling with
+  structured `tool_calls`.
 - `ReActAgent` runs a Thought/Action/Observation loop for tool use.
 - `Message` stores local conversation history before it is converted to API
   messages.
@@ -180,24 +182,50 @@ See [Calculator Tool Flow](docs/calculator-tool-flow.md) for a diagram of how
 the calculator tool is registered, prompted, called, executed, and returned to
 the model.
 
-## Native OpenAI Tool Calling
+## Function Call Agent Example
 
-`Tool.toOpenAISchema()` is included for learning and future experiments with
-native OpenAI tool calling.
+`FunctionCallAgent` uses native OpenAI-compatible function calling. Instead of
+asking the model to write a custom text marker like
+`[TOOL_CALL:calculator:input=12*8]`, it passes real tool schemas through the
+Chat Completions `tools` field.
 
-Native tool calling is different from the custom protocol:
+The model can then return structured `tool_calls`, the agent executes the
+matching local TypeScript tool, and the tool result is sent back as a
+`role: "tool"` message.
 
 ```ts
-client.chat.completions.create({
-  model,
-  messages,
-  tools: registry.getAllTools().map((tool) => tool.toOpenAISchema()),
+import { FunctionCallAgent } from "../src/agents/function-call-agent";
+import { LLM } from "../src/core/llm";
+import { CalculatorTool } from "../src/tools/calculator";
+import { ToolRegistry } from "../src/tools/registry";
+
+const llm = new LLM();
+
+const registry = new ToolRegistry();
+registry.registerTool(new CalculatorTool());
+
+const agent = new FunctionCallAgent({
+  name: "Native Tool Assistant",
+  llm,
+  toolRegistry: registry,
 });
+
+const response = await agent.run("Calculate 12 * 8 + 0.00001 * 10000.");
+console.log(response);
 ```
 
-With native tool calling, the model returns structured `tool_calls`, and your
-app sends results back with `role: "tool"`. The current `SimpleAgent` does not
-use that native path yet.
+Run the included example:
+
+```sh
+npm run example:function
+```
+
+This path is less fragile than the custom text protocol because the tool name
+and arguments come back separately from normal assistant text. You should still
+validate tool inputs in local code before doing anything risky.
+
+See [Function Call Agent Flow](docs/function-call-agent-flow.md) for a diagram
+of the native `tools` / `tool_calls` loop.
 
 ## Build
 
@@ -215,12 +243,16 @@ src/core/config.ts       Shared runtime config defaults
 src/core/types.ts        Shared TypeScript types
 src/core/tool.ts         Base class for local executable tools
 src/agents/simple-agent.ts
+src/agents/function-call-agent.ts
 src/agents/react-agent.ts
 src/tools/registry.ts    In-memory tool registry
 src/tools/calculator.ts  Arithmetic calculator tool
 src/tools/function-tool.ts
-examples/sample-agent.ts
-examples/react-agent.ts
+examples/agents/sample-agent.ts
+examples/agents/function-call-agent.ts
+examples/agents/react-agent.ts
+examples/agents/reflection-agent.ts
+examples/agents/plan-and-solve-agent.ts
 ```
 
 ## Learning Notes

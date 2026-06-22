@@ -1,7 +1,7 @@
-import { ReflectionAgent } from "../src/agents/reflection-agent";
-import { LLM } from "../src/core/llm";
-import { CalculatorTool } from "../src/tools/calculator";
-import { ToolRegistry } from "../src/tools/registry";
+import { ReflectionAgent } from "../../src/agents/reflection-agent";
+import { LLM } from "../../src/core/llm";
+import { CalculatorTool } from "../../src/tools/calculator";
+import { ToolRegistry } from "../../src/tools/registry";
 
 async function main() {
   const llm = new LLM();

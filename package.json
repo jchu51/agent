@@ -5,10 +5,11 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "example:sample": "tsx examples/sample-agent.ts",
-    "example:react": "tsx examples/react-agent.ts",
-    "example:reflection": "tsx examples/reflection-agent.ts",
-    "example:plan": "tsx examples/plan-and-solve-agent.ts"
+    "example:sample": "tsx examples/agents/sample-agent.ts",
+    "example:function": "tsx examples/agents/function-call-agent.ts",
+    "example:react": "tsx examples/agents/react-agent.ts",
+    "example:reflection": "tsx examples/agents/reflection-agent.ts",
+    "example:plan": "tsx examples/agents/plan-and-solve-agent.ts"
   },
   "keywords": [
     "agents",

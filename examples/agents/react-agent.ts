@@ -1,7 +1,7 @@
-import { ReActAgent } from "../src/agents/react-agent";
-import { LLM } from "../src/core/llm";
-import { CalculatorTool } from "../src/tools/calculator";
-import { ToolRegistry } from "../src/tools/registry";
+import { ReActAgent } from "../../src/agents/react-agent";
+import { LLM } from "../../src/core/llm";
+import { CalculatorTool } from "../../src/tools/calculator";
+import { ToolRegistry } from "../../src/tools/registry";
 
 async function main() {
   const llm = new LLM();

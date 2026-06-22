@@ -1,0 +1,44 @@
+@startuml
+title FunctionCallAgent Native Tool Flow
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam sequence {
+  ArrowColor #2F4F4F
+  LifeLineBorderColor #5F6F6F
+  LifeLineBackgroundColor #F7FAFA
+  ParticipantBorderColor #2F4F4F
+  ParticipantBackgroundColor #EEF7F4
+  ParticipantFontColor #1F2A2A
+  BoxBorderColor #B8C7C3
+  BoxBackgroundColor #F8FBFA
+}
+
+actor User
+participant "FunctionCallAgent" as Agent
+participant "ToolRegistry" as Registry
+participant "OpenAI-Compatible Model" as Model
+participant "CalculatorTool" as Tool
+
+User -> Agent: run(question)
+Agent -> Registry: getAllTools()
+Registry --> Agent: Tool objects
+Agent -> Agent: tool.toOpenAISchema()
+Agent -> Model: messages + tools schemas + tool_choice="auto"
+
+alt Model returns tool_calls
+  Model --> Agent: message.tool_calls
+  Agent -> Agent: parse JSON arguments
+  Agent -> Tool: run(parameters)
+  Tool --> Agent: result string
+  Agent -> Model: role="tool" result with tool_call_id
+  Model --> Agent: final answer
+else Model answers directly
+  Model --> Agent: final answer
+end
+
+Agent -> Agent: store user and final assistant Message
+Agent --> User: final answer
+@enduml
+
