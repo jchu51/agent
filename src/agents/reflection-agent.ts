@@ -5,38 +5,22 @@ import { ToolRegistry } from "../tools/registry";
 
 export const DEFAULT_PROMPTS = {
   initial: `Please complete the task according to the following requirements:
-
-Task: {task}
-
-{tool_instructions}
-
-Please provide a complete and accurate answer.
+    Task: {task}
+    {tool_instructions}
+    Please provide a complete and accurate answer.
 `,
   reflect: `Please carefully review the following answer and identify any possible issues or areas for improvement:
-
-# Original Task:
-{task}
-
-# Current Answer:
-{content}
-
-Please analyze the quality of this answer, point out any shortcomings, and provide specific suggestions for improvement.
-If the answer is already good, respond with "No improvement needed".
+    # Original Task: {task}
+    # Current Answer: {content}
+    Please analyze the quality of this answer, point out any shortcomings, and provide specific suggestions for improvement.
+    If the answer is already good, respond with "No improvement needed".
 `,
   refine: `Please improve your answer based on the feedback:
-
-# Original Task:
-{task}
-
-# Previous Answer:
-{last_attempt}
-
-# Feedback:
-{feedback}
-
-{tool_instructions}
-
-Please provide an improved answer.
+    # Original Task: {task}
+    # Previous Answer: {last_attempt}
+    # Feedback: {feedback}
+    {tool_instructions}
+    Please provide an improved answer.
 `,
 } as const;
 
@@ -136,13 +120,10 @@ export class ReflectionAgent extends Agent {
       return "";
     }
 
-    return `Available tools:
-${toolsDescription}
-
-If a tool is needed, respond only with:
-\`[TOOL_CALL:{tool_name}:{input}]\`
-
-After tool results are provided, produce the final answer.`;
+    return `Available tools:${toolsDescription}
+        If a tool is needed, respond only with:
+        \`[TOOL_CALL:{tool_name}:{input}]\`
+        After tool results are provided, produce the final answer.`;
   }
 
   private async invokeWithOptionalTools(
@@ -194,7 +175,6 @@ After tool results are provided, produce the final answer.`;
   }
 
   private isNoImprovementNeeded(feedback: string): boolean {
-    this.noImprovementPattern.lastIndex = 0;
     return this.noImprovementPattern.test(feedback.trim());
   }
 }

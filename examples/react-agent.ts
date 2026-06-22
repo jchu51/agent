@@ -18,9 +18,7 @@ async function main() {
   const response = await agent.run("what is 5 +10 * 50000 +123 * 0.111 ?");
   console.log("----History----\n");
 
-//   console.log(agent.getHistory());
-    console.log(agent.currentHistory);
-
+  console.log(agent.currentHistory);
   console.log("----Response----\n");
   console.log(response);
 }
